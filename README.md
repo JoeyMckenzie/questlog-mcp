@@ -1,15 +1,256 @@
 # taskwarrior-mcp
 
-To install dependencies:
+A Model Context Protocol (MCP) server that exposes [Taskwarrior](https://taskwarrior.org/) task management to AI assistants and agentic coding tools. It wraps the `task` CLI and surfaces a set of structured tools for creating, querying, modifying, and managing tasks directly from your AI coding environment.
 
-```bash
+## Requirements
+
+- [Bun](https://bun.sh/) v1.0 or later
+- [Taskwarrior](https://taskwarrior.org/download/) v3.x (v2 is not supported)
+
+### Install Taskwarrior
+
+**macOS (Homebrew):**
+
+```sh
+brew install task
+```
+
+**Linux (apt):**
+
+```sh
+sudo apt install taskwarrior
+```
+
+Verify the installation and confirm you are on version 3:
+
+```sh
+task --version
+```
+
+## Setup
+
+Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/joeymckenzie/taskwarrior-mcp.git
+cd taskwarrior-mcp
 bun install
 ```
 
-To run:
+## Tools
 
-```bash
-bun run index.ts
+| Tool            | Description                                                                 |
+| --------------- | --------------------------------------------------------------------------- |
+| `task_list`     | List tasks with an optional Taskwarrior filter string                       |
+| `task_get`      | Get a single task by its numeric ID                                         |
+| `task_add`      | Add a new task with optional project, priority, tags, and due date          |
+| `task_bulk_add` | Add multiple tasks at once                                                  |
+| `task_complete` | Mark a task as complete by ID                                               |
+| `task_modify`   | Modify an existing task's description, project, priority, tags, or due date |
+| `task_delete`   | Delete a task by ID                                                         |
+| `task_annotate` | Add an annotation (note) to a task                                          |
+| `task_summary`  | Get a high-level summary of all tasks with counts and a project breakdown   |
+| `task_start`    | Start time tracking on a task                                               |
+| `task_stop`     | Stop time tracking on a task                                                |
+
+### Tool Details
+
+**`task_list`**
+
+Lists tasks. Accepts an optional `filter` string using standard Taskwarrior filter syntax.
+
+```
+filter: "project:work status:pending"
+filter: "priority:H due:today"
+filter: "+home"
 ```
 
-This project was created using `bun init` in bun v1.3.8. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+**`task_get`**
+
+Returns a single task by its numeric ID.
+
+```
+id: 42
+```
+
+**`task_add`**
+
+Creates a new task. Only `description` is required.
+
+```
+description: "Write release notes"
+project: "work"
+priority: "H"   // H, M, or L
+tags: ["docs", "release"]
+due: "2024-12-31"
+```
+
+**`task_bulk_add`**
+
+Creates multiple tasks in a single call. Accepts an array of task objects with the same fields as `task_add`. Requires at least one task.
+
+```
+tasks: [
+  { description: "Set up CI", project: "infra", priority: "H" },
+  { description: "Write tests", project: "infra", tags: ["testing"] },
+  { description: "Update docs", due: "2024-12-31" }
+]
+```
+
+**`task_complete`**
+
+Marks a task done by ID.
+
+```
+id: 7
+```
+
+**`task_modify`**
+
+Updates fields on an existing task. All fields except `id` are optional. Tags can be added or removed independently.
+
+```
+id: 7
+description: "Updated description"
+project: "personal"
+priority: "L"
+tags: { add: ["urgent"], remove: ["waiting"] }
+due: "2025-01-15"
+```
+
+**`task_delete`**
+
+Deletes a task by ID.
+
+```
+id: 7
+```
+
+**`task_annotate`**
+
+Attaches a note to an existing task.
+
+```
+id: 7
+annotation: "Blocked on review from Alice"
+```
+
+**`task_summary`**
+
+Takes no arguments. Returns task counts by status and a breakdown by project.
+
+**`task_start`** / **`task_stop`**
+
+Start or stop active time tracking on a task by ID.
+
+```
+id: 7
+```
+
+## MCP Configuration
+
+The server communicates over stdio using the MCP protocol. Configure it in your tool of choice by pointing to the `index.ts` entry point with Bun.
+
+### Claude Desktop
+
+Add the following to your Claude Desktop config file.
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+    "mcpServers": {
+        "taskwarrior": {
+            "command": "bun",
+            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        }
+    }
+}
+```
+
+Replace `/absolute/path/to/taskwarrior-mcp` with the actual path where you cloned the repository.
+
+### Claude Code (CLI)
+
+Add the MCP server via the CLI:
+
+```sh
+claude mcp add taskwarrior -- bun run /absolute/path/to/taskwarrior-mcp/index.ts
+```
+
+Or add it directly to `.claude/mcp.json` in your home or project directory:
+
+```json
+{
+    "mcpServers": {
+        "taskwarrior": {
+            "command": "bun",
+            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        }
+    }
+}
+```
+
+### Cursor
+
+Open Cursor settings, navigate to the MCP section, and add a new server entry:
+
+```json
+{
+    "taskwarrior": {
+        "command": "bun",
+        "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+    }
+}
+```
+
+### Windsurf
+
+Add the server to your Windsurf MCP config at `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+    "mcpServers": {
+        "taskwarrior": {
+            "command": "bun",
+            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        }
+    }
+}
+```
+
+### VS Code (Continue)
+
+Add the server to your Continue `config.json`:
+
+```json
+{
+    "mcpServers": [
+        {
+            "name": "taskwarrior",
+            "command": "bun",
+            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        }
+    ]
+}
+```
+
+## Development
+
+Run the type checker and linter:
+
+```sh
+bun run types:check
+bun run lint
+```
+
+Run the test suite:
+
+```sh
+bun test
+```
+
+## License
+
+MIT
