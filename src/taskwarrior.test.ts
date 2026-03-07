@@ -22,19 +22,13 @@ function makeTestLayer(
     overrides: Partial<{
         runTask: (
             ...args: string[]
-        ) => Effect.Effect<
-            { stdout: string; stderr: string; exitCode: number },
-            TaskwarriorError
-        >;
-        exportTasks: (
-            filter?: string,
-        ) => Effect.Effect<Task[], TaskwarriorError>;
+        ) => Effect.Effect<{ stdout: string; stderr: string; exitCode: number }, TaskwarriorError>;
+        exportTasks: (filter?: string) => Effect.Effect<Task[], TaskwarriorError>;
         validateTaskwarrior: () => Effect.Effect<string, TaskwarriorError>;
     }> = {},
 ) {
     return Layer.succeed(TaskwarriorService, {
-        runTask: (..._args: string[]) =>
-            Effect.succeed({ stdout: "", stderr: "", exitCode: 0 }),
+        runTask: (..._args: string[]) => Effect.succeed({ stdout: "", stderr: "", exitCode: 0 }),
         exportTasks: (_filter?: string) => Effect.succeed([]),
         validateTaskwarrior: () => Effect.succeed("3.4.2"),
         ...overrides,
@@ -57,9 +51,7 @@ describe("runTask", () => {
             return yield* svc.runTask("--version");
         });
 
-        const result = await Effect.runPromise(
-            program.pipe(Effect.provide(layer)),
-        );
+        const result = await Effect.runPromise(program.pipe(Effect.provide(layer)));
 
         expect(result.stdout).toBe("output");
         expect(result.stderr).toBe("warning");
@@ -83,24 +75,24 @@ describe("runTask", () => {
             return yield* svc.runTask("bad", "command");
         });
 
-        const exit = await Effect.runPromiseExit(
-            program.pipe(Effect.provide(layer)),
-        );
+        const exit = await Effect.runPromiseExit(program.pipe(Effect.provide(layer)));
 
         expect(Exit.isFailure(exit)).toBe(true);
 
         if (Exit.isFailure(exit)) {
-            const error = exit.cause;
-            // Extract the failure from the cause
             Exit.match(exit, {
                 onFailure: (cause) => {
-                    const failures = [...Effect.runSync(Effect.sync(() => {
-                        const fails: TaskwarriorError[] = [];
-                        if (cause._tag === "Fail") {
-                            fails.push(cause.error);
-                        }
-                        return fails;
-                    }))];
+                    const failures = [
+                        ...Effect.runSync(
+                            Effect.sync(() => {
+                                const fails: TaskwarriorError[] = [];
+                                if (cause._tag === "Fail") {
+                                    fails.push(cause.error);
+                                }
+                                return fails;
+                            }),
+                        ),
+                    ];
                     expect(failures[0]).toBeInstanceOf(TaskwarriorError);
                     expect(failures[0]?.exitCode).toBe(1);
                     expect(failures[0]?.stderr).toBe("Command failed");
@@ -124,9 +116,7 @@ describe("exportTasks", () => {
             return yield* svc.exportTasks();
         });
 
-        const tasks = await Effect.runPromise(
-            program.pipe(Effect.provide(layer)),
-        );
+        const tasks = await Effect.runPromise(program.pipe(Effect.provide(layer)));
 
         expect(tasks).toHaveLength(1);
         expect(tasks[0]?.description).toBe("Test task");
@@ -142,9 +132,7 @@ describe("exportTasks", () => {
             return yield* svc.exportTasks();
         });
 
-        const tasks = await Effect.runPromise(
-            program.pipe(Effect.provide(layer)),
-        );
+        const tasks = await Effect.runPromise(program.pipe(Effect.provide(layer)));
 
         expect(tasks).toEqual([]);
     });
@@ -180,9 +168,7 @@ describe("validateTaskwarrior", () => {
             return yield* svc.validateTaskwarrior();
         });
 
-        const version = await Effect.runPromise(
-            program.pipe(Effect.provide(layer)),
-        );
+        const version = await Effect.runPromise(program.pipe(Effect.provide(layer)));
 
         expect(version).toBe("3.4.2");
     });
@@ -204,9 +190,7 @@ describe("validateTaskwarrior", () => {
             return yield* svc.validateTaskwarrior();
         });
 
-        const exit = await Effect.runPromiseExit(
-            program.pipe(Effect.provide(layer)),
-        );
+        const exit = await Effect.runPromiseExit(program.pipe(Effect.provide(layer)));
 
         expect(Exit.isFailure(exit)).toBe(true);
     });

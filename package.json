@@ -7,7 +7,11 @@
         "lint": "oxlint",
         "lint:fix": "oxlint --fix",
         "fmt": "oxfmt",
-        "fmt:check": "oxfmt --check"
+        "fmt:check": "oxfmt --check",
+        "types": "tsc",
+        "types:check": "tsc --noEmit",
+        "check": "bun lint && bun fmt:check && bun types:check",
+        "prepare": "husky"
     },
     "dependencies": {
         "@effect/platform": "^0.94.5",
@@ -18,10 +22,19 @@
     },
     "devDependencies": {
         "@types/bun": "latest",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.3.2",
         "oxfmt": "^0.36.0",
         "oxlint": "^1.51.0"
     },
     "peerDependencies": {
-        "typescript": "^5"
+        "typescript": "^5.9.3"
+    },
+    "lint-staged": {
+        "*.{json,md}": "bun fmt",
+        "*.{js,ts}": [
+            "bun fmt",
+            "bun lint:fix"
+        ]
     }
 }
