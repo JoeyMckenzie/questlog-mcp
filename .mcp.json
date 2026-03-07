@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+        "taskwarrior": {
+            "command": "bun",
+            "args": ["run", "./index.ts"]
+        }
+    }
+}

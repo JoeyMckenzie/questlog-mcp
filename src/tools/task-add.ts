@@ -9,19 +9,24 @@ export interface TaskAddParams {
     due?: string;
 }
 
+export function buildTaskAddArgs(params: TaskAddParams): string[] {
+    const args = ["add", params.description, "rc.confirmation=off", "rc.bulk=0"];
+
+    if (params.project) args.push(`project:${params.project}`);
+    if (params.priority) args.push(`priority:${params.priority}`);
+    if (params.tags) {
+        for (const tag of params.tags) args.push(`+${tag}`);
+    }
+    if (params.due) args.push(`due:${params.due}`);
+
+    return args;
+}
+
 export const taskAdd = (params: TaskAddParams) =>
     Effect.gen(function* () {
         const svc = yield* TaskwarriorService;
-        const args = ["add", params.description, "rc.confirmation=off", "rc.bulk=0"];
 
-        if (params.project) args.push(`project:${params.project}`);
-        if (params.priority) args.push(`priority:${params.priority}`);
-        if (params.tags) {
-            for (const tag of params.tags) args.push(`+${tag}`);
-        }
-        if (params.due) args.push(`due:${params.due}`);
-
-        yield* svc.runTask(...args);
+        yield* svc.runTask(...buildTaskAddArgs(params));
         const tasks = yield* svc.exportTasks("status:pending");
         const task = tasks[tasks.length - 1];
 

@@ -33,7 +33,6 @@ const runTask = (...args: string[]): Effect.Effect<TaskResult, TaskwarriorError>
 
 export const TaskwarriorLive = Layer.succeed(TaskwarriorService, {
     runTask,
-
     exportTasks: (filter?: string) =>
         Effect.gen(function* () {
             const args = filter ? [...filter.split(" "), "export"] : ["export"];
@@ -46,7 +45,6 @@ export const TaskwarriorLive = Layer.succeed(TaskwarriorService, {
 
             return parsed.map((item) => TaskSchema.parse(item));
         }),
-
     validateTaskwarrior: () =>
         Effect.gen(function* () {
             const { stdout } = yield* runTask("--version");
