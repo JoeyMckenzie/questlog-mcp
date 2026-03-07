@@ -1,5 +1,5 @@
 {
-    "name": "taskwarrior-mcp",
+    "name": "@joeymckenzie/taskwarrior-mcp",
     "version": "0.1.0",
     "description": "An MCP server for Taskwarrior task management",
     "keywords": [
