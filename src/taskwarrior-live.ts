@@ -1,25 +1,17 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { Effect, Layer } from "effect";
 import { TaskwarriorService } from "./taskwarrior-service.ts";
 import { TaskSchema, TaskwarriorError } from "./types.ts";
 import type { TaskResult } from "./types.ts";
 
+const execFileAsync = promisify(execFile);
+
 const runTask = (...args: string[]): Effect.Effect<TaskResult, TaskwarriorError> =>
     Effect.tryPromise({
         try: async () => {
-            const proc = Bun.spawn(["task", ...args], {
-                stdout: "pipe",
-                stderr: "pipe",
-            });
-
-            const stdout = await new Response(proc.stdout).text();
-            const stderr = await new Response(proc.stderr).text();
-            const exitCode = await proc.exited;
-
-            if (exitCode !== 0) {
-                throw { exitCode, stderr };
-            }
-
-            return { stdout, stderr, exitCode };
+            const { stdout, stderr } = await execFileAsync("task", args);
+            return { stdout, stderr, exitCode: 0 };
         },
         catch: (e) => {
             const err = e as { exitCode?: number; stderr?: string };
