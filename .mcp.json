@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "taskwarrior": {
+        "questlog": {
             "command": "bun",
             "args": ["run", "./index.ts"]
         }
