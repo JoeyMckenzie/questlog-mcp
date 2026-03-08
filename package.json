@@ -1,7 +1,7 @@
 {
-    "name": "@joeymckenzie/taskwarrior-mcp",
+    "name": "questlog-mcp",
     "version": "0.1.0",
-    "description": "An MCP server for Taskwarrior task management",
+    "description": "An MCP server for Taskwarrior task management.",
     "keywords": [
         "mcp",
         "task-management",

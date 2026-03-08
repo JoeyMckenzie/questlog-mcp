@@ -1,11 +1,11 @@
-# taskwarrior-mcp
+# questlog-mcp
 
-A Model Context Protocol (MCP) server that exposes [Taskwarrior](https://taskwarrior.org/) task management to AI assistants and agentic coding tools. It wraps the `task` CLI and surfaces a set of structured tools for creating, querying, modifying, and managing tasks directly from your AI coding environment.
+An MCP server that exposes [Taskwarrior](https://taskwarrior.org/) task management to AI assistants and agentic coding tools. It wraps the `task` CLI and surfaces a set of structured tools for creating, querying, modifying, and managing tasks directly from your AI coding environment.
 
 ## Requirements
 
-- [Bun](https://bun.sh/) v1.0 or later
 - [Taskwarrior](https://taskwarrior.org/download/) v3.x (v2 is not supported)
+- Node.js v18 or later
 
 ### Install Taskwarrior
 
@@ -25,16 +25,6 @@ Verify the installation and confirm you are on version 3:
 
 ```sh
 task --version
-```
-
-## Setup
-
-Clone the repository and install dependencies:
-
-```sh
-git clone https://github.com/joeymckenzie/taskwarrior-mcp.git
-cd taskwarrior-mcp
-bun install
 ```
 
 ## Tools
@@ -149,7 +139,7 @@ id: 7
 
 ## MCP Configuration
 
-The server communicates over stdio using the MCP protocol. Configure it in your tool of choice by pointing to the `index.ts` entry point with Bun.
+The server communicates over stdio using the MCP protocol and can be run directly via `npx` — no installation or cloning required.
 
 ### Claude Desktop
 
@@ -161,35 +151,18 @@ Add the following to your Claude Desktop config file.
 ```json
 {
     "mcpServers": {
-        "taskwarrior": {
-            "command": "bun",
-            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        "questlog": {
+            "command": "npx",
+            "args": ["-y", "questlog-mcp"]
         }
     }
 }
 ```
-
-Replace `/absolute/path/to/taskwarrior-mcp` with the actual path where you cloned the repository.
 
 ### Claude Code (CLI)
 
-Add the MCP server via the CLI:
-
 ```sh
-claude mcp add taskwarrior -- bun run /absolute/path/to/taskwarrior-mcp/index.ts
-```
-
-Or add it directly to `.claude/mcp.json` in your home or project directory:
-
-```json
-{
-    "mcpServers": {
-        "taskwarrior": {
-            "command": "bun",
-            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
-        }
-    }
-}
+claude mcp add questlog -- npx -y questlog-mcp
 ```
 
 ### Cursor
@@ -198,9 +171,9 @@ Open Cursor settings, navigate to the MCP section, and add a new server entry:
 
 ```json
 {
-    "taskwarrior": {
-        "command": "bun",
-        "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+    "questlog": {
+        "command": "npx",
+        "args": ["-y", "questlog-mcp"]
     }
 }
 ```
@@ -212,9 +185,9 @@ Add the server to your Windsurf MCP config at `~/.codeium/windsurf/mcp_config.js
 ```json
 {
     "mcpServers": {
-        "taskwarrior": {
-            "command": "bun",
-            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+        "questlog": {
+            "command": "npx",
+            "args": ["-y", "questlog-mcp"]
         }
     }
 }
@@ -228,15 +201,23 @@ Add the server to your Continue `config.json`:
 {
     "mcpServers": [
         {
-            "name": "taskwarrior",
-            "command": "bun",
-            "args": ["run", "/absolute/path/to/taskwarrior-mcp/index.ts"]
+            "name": "questlog",
+            "command": "npx",
+            "args": ["-y", "questlog-mcp"]
         }
     ]
 }
 ```
 
 ## Development
+
+Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/joeymckenzie/taskwarrior-mcp.git
+cd taskwarrior-mcp
+bun install
+```
 
 Run the type checker and linter:
 
@@ -250,6 +231,14 @@ Run the test suite:
 ```sh
 bun test
 ```
+
+Build the distributable:
+
+```sh
+bun run build
+```
+
+> **Note:** [Bun](https://bun.sh/) v1.0 or later is required for development. End users running via `npx` only need Node.js.
 
 ## License
 
