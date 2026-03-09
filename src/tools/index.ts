@@ -4,6 +4,7 @@ import { z } from "zod";
 import { TaskwarriorLive } from "../taskwarrior-live.ts";
 import { taskAdd } from "./task-add.ts";
 import { taskBulkAdd } from "./task-bulk-add.ts";
+import { taskBulkComplete } from "./task-bulk-complete.ts";
 import { taskAnnotate } from "./task-annotate.ts";
 import { taskComplete } from "./task-complete.ts";
 import { taskDelete } from "./task-delete.ts";
@@ -122,5 +123,15 @@ export function registerAllTools(server: McpServer) {
         },
         async (params) =>
             Effect.runPromise(taskBulkAdd(params).pipe(Effect.provide(TaskwarriorLive))),
+    );
+
+    server.tool(
+        "task_bulk_complete",
+        "Mark multiple tasks as complete at once",
+        {
+            ids: z.array(z.coerce.number()).min(1),
+        },
+        async (params) =>
+            Effect.runPromise(taskBulkComplete(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 }
