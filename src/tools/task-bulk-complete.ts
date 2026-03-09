@@ -34,11 +34,4 @@ export const taskBulkComplete = (params: { ids: number[] }) =>
                 },
             ],
         };
-    }).pipe(
-        Effect.catchTag("TaskwarriorError", (e) =>
-            Effect.succeed({
-                content: [{ type: "text" as const, text: `Error: ${e.message}` }],
-                isError: true as const,
-            }),
-        ),
-    );
+    });
