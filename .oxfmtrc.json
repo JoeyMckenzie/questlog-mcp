@@ -1,6 +1,6 @@
 {
     "$schema": "./node_modules/oxfmt/configuration_schema.json",
-    "ignorePatterns": ["*.lock"],
+    "ignorePatterns": ["*.lock", ".claude/**"],
     "tabWidth": 4,
     "useTabs": false,
     "trailingComma": "all",

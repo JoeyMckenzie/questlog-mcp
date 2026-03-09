@@ -43,7 +43,7 @@ export const TaskwarriorLive = Layer.succeed(TaskwarriorService, {
             const version = stdout.trim();
 
             if (!version.startsWith("3.")) {
-                yield* Effect.fail(
+                return yield* Effect.fail(
                     new TaskwarriorError({
                         message: `Taskwarrior 3.x required, found ${version}`,
                         exitCode: 1,

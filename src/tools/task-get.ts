@@ -13,7 +13,7 @@ export const taskGet = (params: TaskGetParams) =>
         const task = tasks[0];
 
         if (!task) {
-            yield* Effect.fail(
+            return yield* Effect.fail(
                 new TaskNotFoundError({
                     message: `No task found with ID ${params.id}`,
                     filter: `${params.id}`,
