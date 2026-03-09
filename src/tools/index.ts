@@ -16,120 +16,148 @@ import { taskStop } from "./task-stop.ts";
 import { taskSummary } from "./task-summary.ts";
 
 export function registerAllTools(server: McpServer) {
-    server.tool(
+    server.registerTool(
         "task_list",
-        "List tasks with an optional filter (e.g. 'project:work status:pending')",
-        { filter: z.string().optional() },
+        {
+            description: "List tasks with an optional filter (e.g. 'project:work status:pending')",
+            inputSchema: { filter: z.string().optional() },
+        },
         async (params) => Effect.runPromise(taskList(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_get",
-        "Get a single task by its ID",
-        { id: z.coerce.number() },
+        {
+            description: "Get a single task by its ID",
+            inputSchema: { id: z.coerce.number() },
+        },
         async (params) => Effect.runPromise(taskGet(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_add",
-        "Add a new task",
         {
-            description: z.string(),
-            project: z.string().optional(),
-            priority: z.enum(["H", "M", "L"]).optional(),
-            tags: z.array(z.string()).optional(),
-            due: z.string().optional(),
+            description: "Add a new task",
+            inputSchema: {
+                description: z.string(),
+                project: z.string().optional(),
+                priority: z.enum(["H", "M", "L"]).optional(),
+                tags: z.array(z.string()).optional(),
+                due: z.string().optional(),
+            },
         },
         async (params) => Effect.runPromise(taskAdd(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_complete",
-        "Mark a task as complete",
-        { id: z.coerce.number() },
+        {
+            description: "Mark a task as complete",
+            inputSchema: { id: z.coerce.number() },
+        },
         async (params) =>
             Effect.runPromise(taskComplete(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_modify",
-        "Modify an existing task",
         {
-            id: z.coerce.number(),
-            description: z.string().optional(),
-            project: z.string().optional(),
-            priority: z.enum(["H", "M", "L", ""]).optional(),
-            tags: z
-                .object({
-                    add: z.array(z.string()).optional(),
-                    remove: z.array(z.string()).optional(),
-                })
-                .optional(),
-            due: z.string().optional(),
+            description: "Modify an existing task",
+            inputSchema: {
+                id: z.coerce.number(),
+                description: z.string().optional(),
+                project: z.string().optional(),
+                priority: z.enum(["H", "M", "L", ""]).optional(),
+                tags: z
+                    .object({
+                        add: z.array(z.string()).optional(),
+                        remove: z.array(z.string()).optional(),
+                    })
+                    .optional(),
+                due: z.string().optional(),
+            },
         },
         async (params) =>
             Effect.runPromise(taskModify(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool("task_delete", "Delete a task", { id: z.coerce.number() }, async (params) =>
-        Effect.runPromise(taskDelete(params).pipe(Effect.provide(TaskwarriorLive))),
+    server.registerTool(
+        "task_delete",
+        {
+            description: "Delete a task",
+            inputSchema: { id: z.coerce.number() },
+        },
+        async (params) =>
+            Effect.runPromise(taskDelete(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_annotate",
-        "Add an annotation to a task",
-        { id: z.coerce.number(), annotation: z.string() },
+        {
+            description: "Add an annotation to a task",
+            inputSchema: { id: z.coerce.number(), annotation: z.string() },
+        },
         async (params) =>
             Effect.runPromise(taskAnnotate(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_summary",
-        "Get a summary of all tasks with counts and project breakdown",
-        {},
+        {
+            description: "Get a summary of all tasks with counts and project breakdown",
+            inputSchema: {},
+        },
         async () => Effect.runPromise(taskSummary().pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_start",
-        "Start tracking time on a task",
-        { id: z.coerce.number() },
+        {
+            description: "Start tracking time on a task",
+            inputSchema: { id: z.coerce.number() },
+        },
         async (params) =>
             Effect.runPromise(taskStart(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_stop",
-        "Stop tracking time on a task",
-        { id: z.coerce.number() },
+        {
+            description: "Stop tracking time on a task",
+            inputSchema: { id: z.coerce.number() },
+        },
         async (params) => Effect.runPromise(taskStop(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_bulk_add",
-        "Add multiple tasks at once",
         {
-            tasks: z
-                .array(
-                    z.object({
-                        description: z.string(),
-                        project: z.string().optional(),
-                        priority: z.enum(["H", "M", "L"]).optional(),
-                        tags: z.array(z.string()).optional(),
-                        due: z.string().optional(),
-                    }),
-                )
-                .min(1),
+            description: "Add multiple tasks at once",
+            inputSchema: {
+                tasks: z
+                    .array(
+                        z.object({
+                            description: z.string(),
+                            project: z.string().optional(),
+                            priority: z.enum(["H", "M", "L"]).optional(),
+                            tags: z.array(z.string()).optional(),
+                            due: z.string().optional(),
+                        }),
+                    )
+                    .min(1),
+            },
         },
         async (params) =>
             Effect.runPromise(taskBulkAdd(params).pipe(Effect.provide(TaskwarriorLive))),
     );
 
-    server.tool(
+    server.registerTool(
         "task_bulk_complete",
-        "Mark multiple tasks as complete at once",
         {
-            ids: z.array(z.coerce.number()).min(1),
+            description: "Mark multiple tasks as complete at once",
+            inputSchema: {
+                ids: z.array(z.coerce.number()).min(1),
+            },
         },
         async (params) =>
             Effect.runPromise(taskBulkComplete(params).pipe(Effect.provide(TaskwarriorLive))),
