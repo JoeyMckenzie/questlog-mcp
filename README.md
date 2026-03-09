@@ -1,5 +1,9 @@
 # questlog-mcp
 
+[![CI](https://github.com/joeymckenzie/taskwarrior-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/joeymckenzie/taskwarrior-mcp/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/questlog-mcp)](https://www.npmjs.com/package/questlog-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An MCP server that exposes [Taskwarrior](https://taskwarrior.org/) task management to AI assistants and agentic coding tools. It wraps the `task` CLI and surfaces a set of structured tools for creating, querying, modifying, and managing tasks directly from your AI coding environment.
 
 ## Requirements
